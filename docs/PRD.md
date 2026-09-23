@@ -1,4 +1,4 @@
-# Marketplace Deployment Status Report Dashboard — PRD
+# Marketplace Deployment Dashboard — PRD
 
 **Status:** Approved for MVP implementation  
 **Stack:** Next.js (App Router) + TypeScript + Tailwind CSS  
