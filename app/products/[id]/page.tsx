@@ -54,7 +54,7 @@ export default async function ProductDetailPage({
     <PageShell>
       <div>
         <Link
-          href="/#products"
+          href="/products"
           className="type-body mb-3 inline-flex items-center gap-1.5 font-medium text-text-secondary hover:text-text-primary"
         >
           <ArrowLeft className="size-4" />

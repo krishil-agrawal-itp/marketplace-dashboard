@@ -14,74 +14,27 @@ import {
   PanelLeftOpen,
   ShieldAlert,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const sections = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "marketplaces", label: "Marketplaces", icon: Cloud },
-  { id: "products", label: "Products", icon: Package },
-  { id: "progress", label: "Progress", icon: ClipboardList },
-  { id: "matrix", label: "Matrix", icon: Grid3X3 },
-  { id: "risks", label: "Risks", icon: ShieldAlert },
-  { id: "report", label: "Status report", icon: FileText },
+const navItems = [
+  { href: "/", label: "Overview", icon: LayoutDashboard },
+  { href: "/marketplaces", label: "Marketplaces", icon: Cloud },
+  { href: "/products", label: "Products", icon: Package },
+  { href: "/progress", label: "Progress", icon: ClipboardList },
+  { href: "/matrix", label: "Matrix", icon: Grid3X3 },
+  { href: "/risks", label: "Risks", icon: ShieldAlert },
+  { href: "/reports", label: "Status report", icon: FileText },
 ] as const;
 
-export type SectionId = (typeof sections)[number]["id"];
-
-export function scrollToSection(id: SectionId | string) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
-  window.history.replaceState(null, "", `#${id}`);
+function isActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function Sidebar() {
   const pathname = usePathname();
-  const onHome = pathname === "/";
-  const onProductDetail = pathname.startsWith("/products/");
-  const [active, setActive] = useState<string>(
-    onProductDetail ? "products" : "overview",
-  );
   const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    if (!onHome) {
-      setActive(onProductDetail ? "products" : "overview");
-      return;
-    }
-
-    const ids = sections.map((s) => s.id);
-    const observers: IntersectionObserver[] = [];
-
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setActive(id);
-        },
-        { rootMargin: "-20% 0px -60% 0px", threshold: 0.1 },
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
-
-    const hash = window.location.hash.replace("#", "");
-    if (hash && ids.includes(hash as SectionId)) {
-      setTimeout(() => scrollToSection(hash), 80);
-    }
-
-    return () => observers.forEach((o) => o.disconnect());
-  }, [onHome, onProductDetail]);
-
-  function goToSection(id: SectionId) {
-    if (onHome) {
-      scrollToSection(id);
-      return;
-    }
-    window.location.href = `/#${id}`;
-  }
 
   return (
     <aside
@@ -109,18 +62,17 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
-        {sections.map((section) => {
-          const Icon = section.icon;
-          const isActive = active === section.id;
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(pathname, item.href);
           return (
-            <button
-              key={section.id}
-              type="button"
-              title={section.label}
-              onClick={() => goToSection(section.id)}
+            <Link
+              key={item.href}
+              href={item.href}
+              title={item.label}
               className={cn(
-                "type-body flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 font-medium transition-colors duration-150",
-                isActive
+                "type-body flex items-center gap-3 rounded-lg px-3 py-2 font-medium transition-colors duration-150",
+                active
                   ? "bg-zinc-900 text-white"
                   : "text-text-primary hover:bg-surface-hover",
               )}
@@ -128,24 +80,23 @@ export function Sidebar() {
               <Icon
                 className={cn(
                   "size-5 shrink-0",
-                  isActive ? "text-white" : "text-icon-secondary",
+                  active ? "text-white" : "text-icon-secondary",
                 )}
               />
-              {!collapsed ? <span className="truncate">{section.label}</span> : null}
-            </button>
+              {!collapsed ? <span className="truncate">{item.label}</span> : null}
+            </Link>
           );
         })}
 
         <div className="my-4 border-t border-divider" />
 
-        <button
-          type="button"
-          onClick={() => goToSection("risks")}
-          className="type-body flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 font-medium text-error hover:bg-error-soft/30"
+        <Link
+          href="/risks"
+          className="type-body flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-error hover:bg-error-soft/30"
         >
           <AlertTriangle className="size-5 shrink-0" />
           {!collapsed ? <span>Critical risks</span> : null}
-        </button>
+        </Link>
       </nav>
 
       <div className="border-t border-border p-3">

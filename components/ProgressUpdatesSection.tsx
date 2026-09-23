@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ArrowLeft, Plus, X } from "lucide-react";
+import { PageShell } from "@/components/PageShell";
 import type {
   DailyProgressEntry,
   ProgressStatus,
@@ -222,18 +223,18 @@ export function ProgressUpdatesSection({
     );
 
     return (
-      <section id="progress" className="scroll-mt-4 flex flex-col gap-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <button
-              type="button"
-              onClick={() => setSelectedId(null)}
-              className="type-body mb-2 inline-flex items-center gap-1.5 font-medium text-text-secondary hover:text-text-primary"
-            >
-              <ArrowLeft className="size-4" />
-              All progress items
-            </button>
-            <h2 className="type-heading">{selected.title}</h2>
+      <PageShell>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <button
+            type="button"
+            onClick={() => setSelectedId(null)}
+            className="type-body mb-2 inline-flex items-center gap-1.5 font-medium text-text-secondary hover:text-text-primary"
+          >
+            <ArrowLeft className="size-4" />
+            All progress items
+          </button>
+          <h2 className="type-heading">{selected.title}</h2>
             <p className="type-subtitle mt-1">
               {selected.owner} · {selected.team}
               {product ? ` · ${product.name}` : ""}
@@ -459,12 +460,12 @@ export function ProgressUpdatesSection({
             </form>
           </Modal>
         ) : null}
-      </section>
+      </PageShell>
     );
   }
 
   return (
-    <section id="progress" className="scroll-mt-4 flex flex-col gap-4">
+    <PageShell>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="type-heading">Team progress & updates</h2>
@@ -802,7 +803,7 @@ export function ProgressUpdatesSection({
           </form>
         </Modal>
       ) : null}
-    </section>
+    </PageShell>
   );
 }
 

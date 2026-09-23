@@ -13,15 +13,18 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Pages
 
-Single-page dashboard with sidebar sections on `/`, plus product detail pages:
+Each sidebar item is its own route (no long single-page scroll):
 
-| Route / section | Purpose |
+| Route | Purpose |
 |---|---|
-| `/#overview` … `/#report` | Main dashboard sections (incl. Team progress) |
-| `/#progress` | Team ETAs, WIP, blockers, and latest updates |
-| `/products/[id]` | Full product detail (listings, environments, adoption, spend) |
-
-Legacy list routes (`/matrix`, `/products`, `/reports`) redirect into the matching hash section.
+| `/` | Executive overview |
+| `/marketplaces` | Marketplace cards + filters |
+| `/products` | Product catalog (supports query filters) |
+| `/products/[id]` | Product detail |
+| `/progress` | Team progress + daily logs |
+| `/matrix` | Product × marketplace matrix |
+| `/risks` | Risks & blockers |
+| `/reports` | Printable status report |
 
 ## Architecture
 

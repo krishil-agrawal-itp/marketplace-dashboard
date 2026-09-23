@@ -1,10 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import type { MarketplaceSummary } from "@/lib/data";
 import { formatDate, formatNumber } from "@/lib/status";
 import { cn } from "@/lib/utils";
-import { scrollToSection } from "@/components/Sidebar";
 
 const healthStyles = {
   healthy: "bg-success-soft text-success",
@@ -18,25 +18,17 @@ const healthLabels = {
   at_risk: "At risk",
 } as const;
 
-export function MarketplaceCard({
-  summary,
-  onSelect,
-}: {
-  summary: MarketplaceSummary;
-  onSelect?: (marketplaceId: string) => void;
-}) {
+export function MarketplaceCard({ summary }: { summary: MarketplaceSummary }) {
+  const router = useRouter();
   const { marketplace, liveCount, inReviewCount, mauProxy, lastChange, health } =
     summary;
-
-  function openMarketplace() {
-    onSelect?.(marketplace.id);
-    scrollToSection("products");
-  }
 
   return (
     <button
       type="button"
-      onClick={openMarketplace}
+      onClick={() =>
+        router.push(`/products?marketplace=${marketplace.id}`)
+      }
       className="group flex cursor-pointer flex-col justify-between rounded-2xl border border-border bg-surface p-5 text-left transition-all duration-150 hover:border-border-strong hover:shadow-sm active:scale-[0.99]"
     >
       <div className="flex items-start justify-between gap-3">

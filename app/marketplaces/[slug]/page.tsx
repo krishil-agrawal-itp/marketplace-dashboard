@@ -1,11 +1,19 @@
 import { redirect } from "next/navigation";
 
-export default function MarketplaceRedirect({
+/** Deep marketplace links open the products catalog filtered to that marketplace. */
+export default async function MarketplaceSlugPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  // Keep slug available for future deep-links; funnel into products section.
-  void params;
-  redirect("/#marketplaces");
+  const { slug } = await params;
+  const map: Record<string, string> = {
+    aws: "mp-aws",
+    azure: "mp-azure",
+    gcp: "mp-gcp",
+    databricks: "mp-databricks",
+    anthropic: "mp-anthropic",
+  };
+  const id = map[slug];
+  redirect(id ? `/products?marketplace=${id}` : "/marketplaces");
 }

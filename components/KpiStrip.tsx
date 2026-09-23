@@ -9,15 +9,10 @@ import {
   PackageCheck,
   Users,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import type { ExecutiveKpis } from "@/lib/data";
 import { formatNumber, formatPct, formatUsd } from "@/lib/status";
 import { cn } from "@/lib/utils";
-import { scrollToSection, type SectionId } from "@/components/Sidebar";
-
-export type KpiAction =
-  | { type: "filter-status"; status: string }
-  | { type: "sort"; sort: string }
-  | { type: "navigate"; section: SectionId };
 
 const items: {
   key: keyof ExecutiveKpis;
@@ -25,7 +20,7 @@ const items: {
   format: (v: number) => string;
   icon: React.ComponentType<{ className?: string }>;
   tone: "neutral" | "success" | "warning" | "error";
-  target: SectionId;
+  href: string;
   hint: string;
 }[] = [
   {
@@ -34,7 +29,7 @@ const items: {
     format: formatNumber,
     icon: PackageCheck,
     tone: "success",
-    target: "products",
+    href: "/products?status=deployed",
     hint: "View live products",
   },
   {
@@ -43,7 +38,7 @@ const items: {
     format: formatNumber,
     icon: ClipboardList,
     tone: "warning",
-    target: "products",
+    href: "/products?status=in_review",
     hint: "Filter in-review listings",
   },
   {
@@ -52,7 +47,7 @@ const items: {
     format: formatNumber,
     icon: AlertTriangle,
     tone: "warning",
-    target: "risks",
+    href: "/risks",
     hint: "Jump to risks",
   },
   {
@@ -61,7 +56,7 @@ const items: {
     format: formatNumber,
     icon: Users,
     tone: "neutral",
-    target: "products",
+    href: "/products?sort=mau-desc",
     hint: "Sort products by MAU",
   },
   {
@@ -70,7 +65,7 @@ const items: {
     format: (v) => formatPct(v, 1),
     icon: HeartPulse,
     tone: "success",
-    target: "matrix",
+    href: "/matrix",
     hint: "Open deployment matrix",
   },
   {
@@ -79,7 +74,7 @@ const items: {
     format: formatUsd,
     icon: CircleDollarSign,
     tone: "neutral",
-    target: "products",
+    href: "/products?sort=spend-desc",
     hint: "Sort by spend",
   },
   {
@@ -88,7 +83,7 @@ const items: {
     format: formatNumber,
     icon: Activity,
     tone: "error",
-    target: "risks",
+    href: "/risks",
     hint: "View critical risks",
   },
 ];
@@ -100,27 +95,8 @@ const gradients: Record<string, string> = {
   error: "linear-gradient(to top, #DC2626, #F87171)",
 };
 
-export function KpiStrip({
-  kpis,
-  onAction,
-}: {
-  kpis: ExecutiveKpis;
-  onAction?: (key: keyof ExecutiveKpis, action: KpiAction) => void;
-}) {
-  function handleClick(key: keyof ExecutiveKpis, target: SectionId) {
-    const actionMap: Partial<Record<keyof ExecutiveKpis, KpiAction>> = {
-      productsLive: { type: "filter-status", status: "deployed" },
-      listingsInReview: { type: "filter-status", status: "in_review" },
-      listingsBlocked: { type: "navigate", section: "risks" },
-      totalMau: { type: "sort", sort: "mau-desc" },
-      deploymentHealth: { type: "navigate", section: "matrix" },
-      spendMtd: { type: "sort", sort: "spend-desc" },
-      openCriticalRisks: { type: "navigate", section: "risks" },
-    };
-    const action = actionMap[key] ?? { type: "navigate", section: target };
-    onAction?.(key, action);
-    scrollToSection(action.type === "navigate" ? action.section : target);
-  }
+export function KpiStrip({ kpis }: { kpis: ExecutiveKpis }) {
+  const router = useRouter();
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
@@ -131,7 +107,7 @@ export function KpiStrip({
             key={item.key}
             type="button"
             title={item.hint}
-            onClick={() => handleClick(item.key, item.target)}
+            onClick={() => router.push(item.href)}
             className={cn(
               "flex min-h-[140px] cursor-pointer select-none flex-col justify-between rounded-xl border border-border bg-surface p-5 text-left transition-all duration-150 hover:border-border-strong hover:shadow-sm active:scale-[0.98]",
             )}
