@@ -15,7 +15,8 @@ import { formatNumber, formatUsd } from "@/lib/status";
 
 export interface TrendPoint {
   date: string;
-  [key: string]: string | number;
+  snowflakeMarketplace?: string;
+  [key: string]: string | number | undefined;
 }
 
 export type TrendFormat = "number" | "usd" | "raw";
