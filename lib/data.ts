@@ -23,7 +23,48 @@ import type {
   UsageSnapshot,
 } from "@/lib/types";
 
+// Scraped marketplace descriptions are merged into a module-level cache.
+// The cache is populated lazily on first call and refreshed in the background.
+let _marketplacesCache: Marketplace[] | null = null;
+
+async function _scrapeMarketplaceInfo(mp: Marketplace): Promise<Partial<Marketplace>> {
+  const urls: Record<string, string> = {
+    "mp-aws": "https://aws.amazon.com/marketplace",
+    "mp-azure": "https://azuremarketplace.microsoft.com",
+    "mp-gcp": "https://cloud.google.com/marketplace",
+    "mp-databricks": "https://marketplace.databricks.com",
+    "mp-anthropic": "https://www.anthropic.com",
+  };
+  const url = urls[mp.id];
+  if (!url) return {};
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return {};
+    const html = await res.text();
+    // Extract the first <meta name="description"> content as scraped description.
+    const match = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)
+      ?? html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']description["']/i);
+    if (match?.[1]) return { description: match[1].trim() };
+  } catch {
+    // Network errors or timeouts are silently ignored; seed data is used as fallback.
+  }
+  return {};
+}
+
+async function _refreshMarketplacesCache(): Promise<void> {
+  const enriched = await Promise.all(
+    marketplaces.map(async (mp) => {
+      const scraped = await _scrapeMarketplaceInfo(mp);
+      return { ...mp, ...scraped };
+    }),
+  );
+  _marketplacesCache = enriched;
+}
+
 export function getMarketplaces(): Marketplace[] {
+  if (_marketplacesCache) return _marketplacesCache;
+  // Seed data is returned immediately; cache is populated asynchronously.
+  _refreshMarketplacesCache().catch(() => undefined);
   return marketplaces;
 }
 
