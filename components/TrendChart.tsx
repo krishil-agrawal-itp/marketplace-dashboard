@@ -14,7 +14,7 @@ import {
 import { formatNumber, formatUsd } from "@/lib/status";
 
 export interface TrendPoint {
-  date: string;
+  date: string | number;
   [key: string]: string | number;
 }
 
@@ -69,7 +69,7 @@ export function TrendChart({
             tickLine={false}
             axisLine={false}
             tick={{ fontSize: 12, fill: "var(--text-secondary)", fontWeight: 600 }}
-            tickFormatter={(v: string) => v.slice(5)}
+            tickFormatter={(v: string | number) => String(v).slice(5)}
           />
           <YAxis
             tickLine={false}
@@ -82,7 +82,7 @@ export function TrendChart({
             formatter={(value) =>
               typeof value === "number" ? formatValue(value, format) : value
             }
-            labelFormatter={(l) => String(l)}
+            labelFormatter={(l: string | number) => String(l)}
             contentStyle={{
               background: "var(--surface)",
               border: "1px solid var(--border)",
